@@ -1,21 +1,63 @@
+import { useState } from 'react'
 import './App.css'
 
+const whatsappLink =
+  'https://wa.me/917897775992?text=Hi, I need legal help regarding my case.'
+
 function App() {
+  const [showBooking, setShowBooking] = useState(false)
+  const [countryCode, setCountryCode] = useState('+91')
+  const [phone, setPhone] = useState('')
+  const [phoneError, setPhoneError] = useState('')
+
+  const vibrate = () => {
+    if (navigator.vibrate) navigator.vibrate(80)
+  }
+
+  const handlePhoneChange = (event) => {
+    const digits = event.target.value.replace(/\D/g, '')
+
+    if (digits.length > 10) {
+      vibrate()
+      setPhoneError('Phone number must be exactly 10 digits.')
+      return
+    }
+
+    setPhone(digits)
+
+    if (digits.length > 0 && digits.length < 10) {
+      setPhoneError('Phone number must be exactly 10 digits.')
+    } else {
+      setPhoneError('')
+    }
+  }
+
+  const validatePhone = () => {
+    if (phone.length !== 10) {
+      vibrate()
+      setPhoneError('Phone number must be exactly 10 digits.')
+      return false
+    }
+
+    setPhoneError('')
+    return true
+  }
+
   return (
     <main className="page">
       <div className="courtWatermark">⚖</div>
 
       <nav className="nav">
         <div className="brand">Akashdeep Shukla Law Office</div>
-        <a className="navBtn" href="#contact">Book Consultation</a>
+        <button className="navBtn" onClick={() => setShowBooking(true)}>
+          Book Consultation
+        </button>
       </nav>
 
       <section className="hero">
         <div className="heroText">
           <p className="eyebrow">High Court Lucknow • 16 Years Experience</p>
-
           <h1 className="radiantTitle">Adv. Akashdeep Shukla</h1>
-
           <h2>Criminal Lawyer in Lucknow High Court</h2>
 
           <p className="intro">
@@ -25,8 +67,14 @@ function App() {
           </p>
 
           <div className="actions">
-            <a className="primary" href="#contact">Book Consultation</a>
-            <a className="secondary" href="tel:+917897775992">Call Now</a>
+            <button className="primary" onClick={() => setShowBooking(true)}>
+              Book Consultation
+            </button>
+
+            <a className="whatsappPremium" href={whatsappLink} target="_blank">
+              <span className="waIcon">💬</span>
+              WhatsApp Now
+            </a>
           </div>
 
           <div className="stats">
@@ -38,7 +86,10 @@ function App() {
 
         <div className="profileCard">
           <div className="photoAura"></div>
-          <img src={`${import.meta.env.BASE_URL}akashdeep-shukla.jpg`} alt="Advocate Akashdeep Shukla" />
+          <img
+            src={`${import.meta.env.BASE_URL}akashdeep-shukla.jpg`}
+            alt="Advocate Akashdeep Shukla"
+          />
           <div className="verified">Verified Advocate</div>
         </div>
       </section>
@@ -91,12 +142,107 @@ function App() {
       <section id="contact" className="contact">
         <p className="sectionLabel">Consultation</p>
         <h2>Need legal help now?</h2>
-        <p>Share your case details and get connected for the next legal step.</p>
+        <p>Choose a date and time, then share your case details.</p>
 
         <div className="actions center">
-          <a className="primary" href="tel:+917897775992">Call Advocate</a>
+          <button className="primary" onClick={() => setShowBooking(true)}>
+            Book Date & Time
+          </button>
         </div>
       </section>
+
+      <a className="whatsappFloat" href={whatsappLink} target="_blank" aria-label="Chat on WhatsApp">
+        💬
+      </a>
+
+      {showBooking && (
+        <div className="bookingOverlay">
+          <div className="bookingModal">
+            <button className="closeBtn" onClick={() => setShowBooking(false)}>×</button>
+
+            <p className="sectionLabel">Private Consultation Request</p>
+            <h2>Book your consultation</h2>
+            <p className="bookingSub">
+              Select a preferred date and time. The request will be sent directly to the law office.
+            </p>
+
+            <form
+              className="bookingForm"
+              action="https://formsubmit.co/vik.shukla44@gmail.com"
+              method="POST"
+              onSubmit={(event) => {
+                if (!validatePhone()) {
+                  event.preventDefault()
+                }
+              }}
+            >
+              <input type="hidden" name="_cc" value="aksmon.shukla31@gmail.com" />
+              <input type="hidden" name="_subject" value="New Consultation Booking - Akashdeep Shukla Law Office" />
+              <input type="hidden" name="_captcha" value="false" />
+              <input type="hidden" name="Full Phone Number" value={`${countryCode} ${phone}`} />
+
+              <input name="Name" type="text" placeholder="Full name" required />
+
+              <div>
+                <div className="phoneGroup">
+                  <input
+                    className="countryCode"
+                    name="Country Code"
+                    type="text"
+                    value={countryCode}
+                    onChange={(event) => {
+                      let value = event.target.value.replace(/[^\d+]/g, '')
+
+                      if (!value.startsWith('+')) {
+                        value = `+${value.replace(/\+/g, '')}`
+                      }
+
+                      setCountryCode(value)
+                    }}
+                    required
+                  />
+
+                  <input
+                    name="Phone"
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength="10"
+                    value={phone}
+                    onChange={handlePhoneChange}
+                    onBlur={validatePhone}
+                    placeholder="10 digit mobile number"
+                    required
+                  />
+                </div>
+
+                {phoneError && <p className="fieldError">{phoneError}</p>}
+              </div>
+
+              <div className="formRow">
+                <input name="Preferred Date" type="date" required />
+                <input name="Preferred Time" type="time" required />
+              </div>
+
+              <select name="Case Type" required>
+                <option value="">Select case type</option>
+                <option>Criminal Matter</option>
+                <option>Bail Matter</option>
+                <option>Appeal</option>
+                <option>Writ Petition</option>
+                <option>Marriage Dispute</option>
+                <option>Divorce Matter</option>
+                <option>Other</option>
+              </select>
+
+              <textarea name="Case Details" placeholder="Briefly explain your matter" rows="4" required />
+
+              <button className="submitBooking" type="submit">
+                Confirm Booking Request
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
