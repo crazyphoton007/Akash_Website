@@ -26,7 +26,7 @@ function App() {
 
           <div className="actions">
             <a className="primary" href="#contact">Book Consultation</a>
-            <a className="secondary" href="tel:+919999999999">Call Now</a>
+            <a className="secondary" href="tel:+917897775992">Call Now</a>
           </div>
 
           <div className="stats">
