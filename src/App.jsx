@@ -38,7 +38,7 @@ function App() {
 
         <div className="profileCard">
           <div className="photoAura"></div>
-          <img src="/akashdeep-shukla.jpg" alt="Advocate Akashdeep Shukla" />
+          <img src={`${import.meta.env.BASE_URL}akashdeep-shukla.jpg`} alt="Advocate Akashdeep Shukla" />
           <div className="verified">Verified Advocate</div>
         </div>
       </section>
