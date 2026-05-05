@@ -94,7 +94,7 @@ function App() {
         <p>Share your case details and get connected for the next legal step.</p>
 
         <div className="actions center">
-          <a className="primary" href="tel:+919999999999">Call Advocate</a>
+          <a className="primary" href="tel:+917897775992">Call Advocate</a>
         </div>
       </section>
     </main>
