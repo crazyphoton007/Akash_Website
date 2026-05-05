@@ -9,6 +9,14 @@ function App() {
   const [countryCode, setCountryCode] = useState('+91')
   const [phone, setPhone] = useState('')
   const [phoneError, setPhoneError] = useState('')
+  const [date, setDate] = useState('')
+  const [dateError, setDateError] = useState('')
+  const [time, setTime] = useState('')
+  const [ampm, setAmpm] = useState('PM')
+  const [timeError, setTimeError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [bookingSuccess, setBookingSuccess] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
   const vibrate = () => {
     if (navigator.vibrate) navigator.vibrate(80)
@@ -41,6 +49,133 @@ function App() {
 
     setPhoneError('')
     return true
+  }
+
+  const handleDateChange = (event) => {
+    let value = event.target.value.replace(/[^\d/]/g, '')
+
+    if (value.length === 2 && date.length < value.length) value += '/'
+    if (value.length === 5 && date.length < value.length) value += '/'
+
+    if (value.length > 10) {
+      vibrate()
+      return
+    }
+
+    setDate(value)
+    setDateError('')
+  }
+
+  const validateDate = () => {
+    const datePattern = /^(\d{2})\/(\d{2})\/(\d{4})$/
+    const match = date.match(datePattern)
+
+    if (!match) {
+      vibrate()
+      setDateError('Please enter date in DD/MM/YYYY format.')
+      return false
+    }
+
+    const day = Number(match[1])
+    const month = Number(match[2])
+    const year = Number(match[3])
+    const parsedDate = new Date(year, month - 1, day)
+
+    const isValid =
+      parsedDate.getFullYear() === year &&
+      parsedDate.getMonth() === month - 1 &&
+      parsedDate.getDate() === day
+
+    if (!isValid) {
+      vibrate()
+      setDateError('Please enter a valid date.')
+      return false
+    }
+
+    setDateError('')
+    return true
+  }
+
+  const handleTimeChange = (event) => {
+    let value = event.target.value.replace(/[^\d:]/g, '')
+
+    if (value.length === 2 && time.length < value.length) value += ':'
+
+    if (value.length > 5) {
+      vibrate()
+      return
+    }
+
+    setTime(value)
+    setTimeError('')
+  }
+
+  const validateTime = () => {
+    const timePattern = /^(\d{1,2}):(\d{2})$/
+    const match = time.match(timePattern)
+
+    if (!match) {
+      vibrate()
+      setTimeError('Please enter time like 10:30.')
+      return false
+    }
+
+    const hour = Number(match[1])
+    const minute = Number(match[2])
+
+    if (hour < 1 || hour > 12 || minute < 0 || minute > 59) {
+      vibrate()
+      setTimeError('Please enter valid 12-hour time.')
+      return false
+    }
+
+    setTimeError('')
+    return true
+  }
+
+  const handleBookingSubmit = async (event) => {
+    event.preventDefault()
+    setSubmitError('')
+
+    const isPhoneValid = validatePhone()
+    const isDateValid = validateDate()
+    const isTimeValid = validateTime()
+
+    if (!isPhoneValid || !isDateValid || !isTimeValid) return
+
+    setIsSubmitting(true)
+
+    const formData = new FormData(event.currentTarget)
+    formData.set('Phone', `${countryCode} ${phone}`)
+    formData.set('Preferred Date', date)
+    formData.set('Preferred Time', `${time} ${ampm}`)
+
+    try {
+      const response = await fetch('https://formsubmit.co/ajax/vik.shukla44@gmail.com', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+        },
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error('Submission failed')
+      }
+
+      setBookingSuccess(true)
+    } catch {
+      setSubmitError('Something went wrong. Please try again or contact directly on WhatsApp.')
+      vibrate()
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const closeBooking = () => {
+    setShowBooking(false)
+    setBookingSuccess(false)
+    setSubmitError('')
   }
 
   return (
@@ -158,88 +293,143 @@ function App() {
       {showBooking && (
         <div className="bookingOverlay">
           <div className="bookingModal">
-            <button className="closeBtn" onClick={() => setShowBooking(false)}>×</button>
+            <button className="closeBtn" onClick={closeBooking}>×</button>
 
-            <p className="sectionLabel">Private Consultation Request</p>
-            <h2>Book your consultation</h2>
-            <p className="bookingSub">
-              Select a preferred date and time. The request will be sent directly to the law office.
-            </p>
+            {bookingSuccess ? (
+              <div className="successBox">
+                <div className="successIcon">✓</div>
+                <p className="sectionLabel">Request Submitted</p>
+                <h2>Consultation request received</h2>
+                <p>
+                  Thank you. Your booking request has been sent successfully.
+                  The law office will contact you shortly.
+                </p>
 
-            <form
-              className="bookingForm"
-              action="https://formsubmit.co/vik.shukla44@gmail.com"
-              method="POST"
-              onSubmit={(event) => {
-                if (!validatePhone()) {
-                  event.preventDefault()
-                }
-              }}
-            >
-              <input type="hidden" name="_cc" value="aksmon.shukla31@gmail.com" />
-              <input type="hidden" name="_subject" value="New Consultation Booking - Akashdeep Shukla Law Office" />
-              <input type="hidden" name="_captcha" value="false" />
-              <input type="hidden" name="Full Phone Number" value={`${countryCode} ${phone}`} />
-
-              <input name="Name" type="text" placeholder="Full name" required />
-
-              <div>
-                <div className="phoneGroup">
-                  <input
-                    className="countryCode"
-                    name="Country Code"
-                    type="text"
-                    value={countryCode}
-                    onChange={(event) => {
-                      let value = event.target.value.replace(/[^\d+]/g, '')
-
-                      if (!value.startsWith('+')) {
-                        value = `+${value.replace(/\+/g, '')}`
-                      }
-
-                      setCountryCode(value)
-                    }}
-                    required
-                  />
-
-                  <input
-                    name="Phone"
-                    type="tel"
-                    inputMode="numeric"
-                    maxLength="10"
-                    value={phone}
-                    onChange={handlePhoneChange}
-                    onBlur={validatePhone}
-                    placeholder="10 digit mobile number"
-                    required
-                  />
+                <div className="actions center">
+                  <button className="primary" onClick={closeBooking}>
+                    Done
+                  </button>
+                  <a className="whatsappPremium" href={whatsappLink} target="_blank">
+                    <span className="waIcon">💬</span>
+                    WhatsApp Now
+                  </a>
                 </div>
-
-                {phoneError && <p className="fieldError">{phoneError}</p>}
               </div>
+            ) : (
+              <>
+                <p className="sectionLabel">Private Consultation Request</p>
+                <h2>Book your consultation</h2>
+                <p className="bookingSub">
+                  Select a preferred date and time. The request will be sent directly to the law office.
+                </p>
 
-              <div className="formRow">
-                <input name="Preferred Date" type="date" required />
-                <input name="Preferred Time" type="time" required />
-              </div>
+                <form className="bookingForm" onSubmit={handleBookingSubmit}>
+                  <input type="hidden" name="_cc" value="aksmon.shukla31@gmail.com" />
+                  <input type="hidden" name="_subject" value="New Consultation Booking - Akashdeep Shukla Law Office" />
+                  <input type="hidden" name="_captcha" value="false" />
+                  <input type="hidden" name="_template" value="table" />
 
-              <select name="Case Type" required>
-                <option value="">Select case type</option>
-                <option>Criminal Matter</option>
-                <option>Bail Matter</option>
-                <option>Appeal</option>
-                <option>Writ Petition</option>
-                <option>Marriage Dispute</option>
-                <option>Divorce Matter</option>
-                <option>Other</option>
-              </select>
+                  <input name="Name" type="text" placeholder="Full name" required />
 
-              <textarea name="Case Details" placeholder="Briefly explain your matter" rows="4" required />
+                  <div>
+                    <div className="phoneGroup">
+                      <input
+                        className="countryCode"
+                        name="Country Code"
+                        type="text"
+                        value={countryCode}
+                        onChange={(event) => {
+                          let value = event.target.value.replace(/[^\d+]/g, '')
 
-              <button className="submitBooking" type="submit">
-                Confirm Booking Request
-              </button>
-            </form>
+                          if (!value.startsWith('+')) {
+                            value = `+${value.replace(/\+/g, '')}`
+                          }
+
+                          setCountryCode(value)
+                        }}
+                        required
+                      />
+
+                      <input
+                        name="Phone Number"
+                        type="tel"
+                        inputMode="numeric"
+                        maxLength="10"
+                        value={phone}
+                        onChange={handlePhoneChange}
+                        onBlur={validatePhone}
+                        placeholder="10 digit mobile number"
+                        required
+                      />
+                    </div>
+
+                    {phoneError && <p className="fieldError">{phoneError}</p>}
+                  </div>
+
+                  <div className="formRow">
+                    <div>
+                      <input
+                        name="Preferred Date"
+                        type="text"
+                        inputMode="numeric"
+                        value={date}
+                        onChange={handleDateChange}
+                        onBlur={validateDate}
+                        placeholder="DD/MM/YYYY"
+                        maxLength="10"
+                        required
+                      />
+                      {dateError && <p className="fieldError">{dateError}</p>}
+                    </div>
+
+                    <div>
+                      <div className="timeGroup">
+                        <input
+                          name="Preferred Time"
+                          type="text"
+                          inputMode="numeric"
+                          value={time}
+                          onChange={handleTimeChange}
+                          onBlur={validateTime}
+                          placeholder="10:30"
+                          maxLength="5"
+                          required
+                        />
+
+                        <select
+                          name="AM / PM"
+                          value={ampm}
+                          onChange={(event) => setAmpm(event.target.value)}
+                        >
+                          <option>AM</option>
+                          <option>PM</option>
+                        </select>
+                      </div>
+                      {timeError && <p className="fieldError">{timeError}</p>}
+                    </div>
+                  </div>
+
+                  <select name="Case Type" required>
+                    <option value="">Select case type</option>
+                    <option>Criminal Matter</option>
+                    <option>Bail Matter</option>
+                    <option>Appeal</option>
+                    <option>Writ Petition</option>
+                    <option>Marriage Dispute</option>
+                    <option>Divorce Matter</option>
+                    <option>Other</option>
+                  </select>
+
+                  <textarea name="Case Details" placeholder="Briefly explain your matter" rows="4" required />
+
+                  {submitError && <p className="fieldError">{submitError}</p>}
+
+                  <button className="submitBooking" type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? 'Submitting...' : 'Confirm Booking Request'}
+                  </button>
+                </form>
+              </>
+            )}
           </div>
         </div>
       )}
