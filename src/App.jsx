@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 const whatsappLink =
@@ -6,6 +6,8 @@ const whatsappLink =
 
 function App() {
   const [showBooking, setShowBooking] = useState(false)
+  const [desktopMode, setDesktopMode] = useState(false)
+
   const [countryCode, setCountryCode] = useState('+91')
   const [phone, setPhone] = useState('')
   const [phoneError, setPhoneError] = useState('')
@@ -17,6 +19,19 @@ function App() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [bookingSuccess, setBookingSuccess] = useState(false)
   const [submitError, setSubmitError] = useState('')
+
+  useEffect(() => {
+    const savedDesktopMode = localStorage.getItem('desktopMode')
+    if (savedDesktopMode === 'true') {
+      setDesktopMode(true)
+    }
+  }, [])
+
+  const toggleDesktopMode = () => {
+    const nextMode = !desktopMode
+    setDesktopMode(nextMode)
+    localStorage.setItem('desktopMode', String(nextMode))
+  }
 
   const vibrate = () => {
     if (navigator.vibrate) navigator.vibrate(80)
@@ -179,7 +194,11 @@ function App() {
   }
 
   return (
-    <main className="page">
+    <main className={`page ${desktopMode ? 'desktopMode' : ''}`}>
+      <button className="desktopToggle" onClick={toggleDesktopMode}>
+        {desktopMode ? 'Mobile View ✦' : 'Desktop View ↗'}
+      </button>
+
       <div className="courtWatermark">⚖</div>
 
       <nav className="nav">

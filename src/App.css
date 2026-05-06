@@ -614,7 +614,43 @@ button {
   margin: 0 auto;
 }
 
+.desktopToggle {
+  display: none;
+  position: fixed;
+  right: 18px;
+  top: 18px;
+  z-index: 3000;
+  padding: 11px 16px;
+  border-radius: 999px;
+  color: #050505;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.92), transparent 24%),
+    linear-gradient(135deg, #f8dc76, #c2932a);
+  box-shadow:
+    0 18px 50px rgba(0,0,0,0.45),
+    0 0 34px rgba(212,175,55,0.22),
+    inset 0 1px 0 rgba(255,255,255,0.45);
+  backdrop-filter: blur(18px);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.desktopToggle:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 24px 70px rgba(0,0,0,0.55),
+    0 0 44px rgba(212,175,55,0.28);
+}
+
 @media (max-width: 900px) {
+  .desktopToggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .page {
     padding: 18px;
   }
@@ -807,5 +843,121 @@ button {
   .timeGroup {
     grid-template-columns: 1fr 82px;
     gap: 10px;
+  }
+}
+
+@media (max-width: 900px) {
+  .page.desktopMode {
+    width: 1220px;
+    max-width: none;
+    min-width: 1220px;
+    padding: 30px;
+    overflow-x: auto;
+  }
+
+  .page.desktopMode .desktopToggle {
+    position: fixed;
+    left: 18px;
+    right: auto;
+    top: 18px;
+  }
+
+  .page.desktopMode .nav {
+    max-width: 1220px;
+    margin: 0 auto 70px;
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    border-radius: 999px;
+    padding: 16px 18px 16px 24px;
+  }
+
+  .page.desktopMode .brand {
+    font-size: 17px;
+    line-height: normal;
+  }
+
+  .page.desktopMode .navBtn {
+    width: auto;
+    margin-top: 0;
+    padding: 13px 22px;
+  }
+
+  .page.desktopMode .hero {
+    max-width: 1220px;
+    display: grid;
+    grid-template-columns: 1.12fr 0.88fr;
+    gap: 70px;
+    align-items: center;
+  }
+
+  .page.desktopMode .stats,
+  .page.desktopMode .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .page.desktopMode .split {
+    grid-template-columns: 0.95fr 1.05fr;
+  }
+
+  .page.desktopMode .actions {
+    width: auto;
+  }
+
+  .page.desktopMode .primary,
+  .page.desktopMode .secondary,
+  .page.desktopMode .whatsappPremium {
+    width: auto;
+    padding: 15px 24px;
+    font-size: inherit;
+  }
+
+  .page.desktopMode .radiantTitle {
+    font-size: clamp(50px, 7vw, 92px);
+    line-height: 1.02;
+    letter-spacing: -2.5px;
+    margin: 18px 0;
+  }
+
+  .page.desktopMode .hero h2 {
+    font-size: clamp(30px, 4vw, 52px);
+    line-height: 1.1;
+  }
+
+  .page.desktopMode .intro {
+    font-size: 18px;
+    line-height: 1.8;
+  }
+
+  .page.desktopMode .profileCard {
+    border-radius: 36px;
+    padding: 12px;
+    transform: rotate(1.2deg);
+  }
+
+  .page.desktopMode .profileCard img {
+    border-radius: 28px;
+  }
+
+  .page.desktopMode .section,
+  .page.desktopMode .split,
+  .page.desktopMode .seoBox,
+  .page.desktopMode .contact {
+    max-width: 1220px;
+    margin-top: 100px;
+  }
+
+  .page.desktopMode .card,
+  .page.desktopMode .split,
+  .page.desktopMode .seoBox,
+  .page.desktopMode .contact {
+    border-radius: 34px;
+  }
+
+  .page.desktopMode .courtWatermark {
+    font-size: 430px;
+    right: 8%;
+    top: 14%;
+    opacity: 1;
   }
 }
